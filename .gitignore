@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# Entornos virtuales
+venv/
+env/
+.env
+.venv
+ENV/
+
+# Logs generados por el sistema
+*.txt
+*.log
+logs_prueba_concurrente.txt
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Distribución / empaquetado
+dist/
+build/
+*.egg-info/
