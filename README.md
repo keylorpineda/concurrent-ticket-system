@@ -2,194 +2,187 @@
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
   <img src="https://img.shields.io/badge/Threading-FFD43B?style=for-the-badge&logo=python&logoColor=blue" alt="Threading" />
   <img src="https://img.shields.io/badge/Sockets_TCP-00599C?style=for-the-badge&logo=gnu&logoColor=white" alt="Sockets TCP" />
-  <img src="https://img.shields.io/badge/Concurrencia-FF6B6B?style=for-the-badge" alt="Concurrencia" />
+  <img src="https://img.shields.io/badge/Concurrency-FF6B6B?style=for-the-badge" alt="Concurrency" />
 </div>
 
-<h1 align="center">🎵 Sistema Concurrente de Gestión de Concierto Masivo</h1>
+<h1 align="center">🎵 Concurrent System for Massive Concert Management</h1>
 
 <p align="center">
-  <strong>Fase II — Implementación Concurrente en Entorno Local</strong>
+  <strong>Phase II - Concurrent Implementation in a Local Environment</strong>
   <br />
-  Sistema cliente-servidor de reserva y venta de entradas con sincronización explícita mediante hilos, mutex y semáforos.
+  Client-server ticket reservation and sales system with explicit synchronization using threads, mutexes, and semaphores.
 </p>
 
 <p align="center">
-  <strong>Curso:</strong> EIF 212 Sistemas Operativos &nbsp;|&nbsp;
-  <strong>Universidad Nacional</strong> — Sede Regional Brunca
+  <strong>Course:</strong> EIF 212 Operating Systems &nbsp;|&nbsp;
+  <strong>National University</strong> - Brunca Regional Campus
 </p>
 
 ---
 
-## 📖 Descripción General
+## 📖 Overview
 
-El **Sistema Concurrente de Gestión de Concierto Masivo** simula la venta de entradas para un concierto dividido en múltiples zonas (VIP, Preferencial y General). Cada solicitud de reserva o compra es atendida por un hilo independiente, garantizando integridad de datos bajo alta concurrencia mediante mecanismos explícitos de sincronización.
+The **Concurrent System for Massive Concert Management** simulates ticket sales for a concert divided into multiple zones (VIP, Preferred, and General). Each reservation or purchase request is handled by an independent thread, ensuring data integrity under high concurrency through explicit synchronization mechanisms.
 
-El sistema implementa una arquitectura cliente-servidor sobre TCP, donde el servidor administra todos los recursos compartidos y múltiples clientes se conectan simultáneamente para consultar disponibilidad, realizar reservas temporales y confirmar compras.
+The system implements a client-server architecture over TCP, where the server manages all shared resources and multiple clients connect simultaneously to check availability, make temporary reservations, and confirm purchases.
 
-## ✨ Características Principales
+## ✨ Main Features
 
-- **🔒 Exclusión Mutua Explícita:** `threading.Lock` por zona, por tabla de reservas y por bitácora — sin frameworks que oculten la concurrencia.
-- **🚦 Semáforos Contadores por Zona:** Control de capacidad real; se decrementan al reservar y se incrementan al cancelar o expirar.
-- **⏱️ TTL Automático:** Hilo daemon independiente que libera reservas no confirmadas dentro del tiempo límite (30 segundos).
-- **🔗 Orden Jerárquico de Locks:** Adquisición siempre en orden ascendente de zona — prevención formal de deadlocks eliminando la espera circular (condición de Coffman).
-- **🛡️ Safety Garantizada:** La verificación y modificación del estado del asiento ocurren dentro de la misma sección crítica — imposible la doble venta.
-- **📡 Arquitectura TCP:** Comunicación mediante sockets, protocolo JSON sobre TCP, un hilo por cliente.
-- **📋 Bitácora Global Concurrente:** Log de eventos protegido con lock independiente.
-- **🧪 Generador de Carga:** Módulo de pruebas que simula escenarios de conflicto y carga masiva con registro de resultados.
+- **🔒 Explicit Mutual Exclusion:** `threading.Lock` per zone, reservation table, and event log - no frameworks that hide concurrency.
+- **🚦 Counting Semaphores per Zone:** Real capacity control; decremented on reservation and incremented on cancellation or expiration.
+- **⏱️ Automatic TTL:** Independent daemon thread that releases unconfirmed reservations within the time limit (30 seconds).
+- **🔗 Hierarchical Lock Ordering:** Locks are always acquired in ascending zone order - formal deadlock prevention by eliminating circular wait (Coffman condition).
+- **🛡️ Guaranteed Safety:** Seat state verification and update happen within the same critical section - double selling is impossible.
+- **📡 TCP Architecture:** Socket-based communication, JSON protocol over TCP, one thread per client.
+- **📋 Concurrent Global Event Log:** Event logging protected with an independent lock.
+- **🧪 Load Generator:** Testing module that simulates conflict and high-load scenarios with result tracking.
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Technology Stack
 
-| Componente | Tecnología |
+| Component | Technology |
 |---|---|
-| Lenguaje | Python 3.8+ |
-| Concurrencia | `threading` (Lock, Semaphore, Thread) |
-| Comunicación | `socket` — TCP/IP |
-| Serialización | `json` (protocolo de mensajes) |
-| Identificadores | `uuid` |
+| Language | Python 3.8+ |
+| Concurrency | `threading` (Lock, Semaphore, Thread) |
+| Communication | `socket` - TCP/IP |
+| Serialization | `json` (message protocol) |
+| Identifiers | `uuid` |
 
-> Toda la concurrencia se implementa con la biblioteca estándar de Python, sin frameworks de terceros, cumpliendo el requisito explícito del proyecto.
+> All concurrency is implemented using Python's standard library, without third-party frameworks, meeting the project's explicit requirement.
 
-## 📂 Arquitectura del Proyecto
+## 📂 Project Architecture
 
 ```text
 concierto/
  ├── shared/
- │    ├── recursos.py       # Núcleo del sistema: ConcertSystem, matriz de asientos,
- │    │                     # semáforos, locks, tabla de reservas y bitácora
- │    └── gestor_ttl.py     # TTLManager: hilo daemon que procesa expiraciones
+ │    ├── recursos.py       # Core system: ConcertSystem, seat matrix,
+ │    │                     # semaphores, locks, reservation table, and event log
+ │    └── gestor_ttl.py     # TTLManager: daemon thread that processes expirations
  │
  ├── server/
- │    └── servidor.py       # Servidor TCP concurrente — un hilo por cliente
+ │    └── servidor.py       # Concurrent TCP server - one thread per client
  │
  └── client/
-      ├── cliente_lib.py          # Librería de comunicación (send_request y helpers)
-      ├── cliente_interactivo.py  # Menú TUI para uso manual
-      └── prueba_concurrente.py   # Generador de carga y pruebas de concurrencia
+      ├── cliente_lib.py          # Communication library (send_request and helpers)
+      ├── cliente_interactivo.py  # TUI menu for manual use
+      └── prueba_concurrente.py   # Load generator and concurrency tests
 ```
 
-## 🔧 Recursos Compartidos y Mecanismos de Sincronización
+## 🔧 Shared Resources and Synchronization Mechanisms
 
-| Recurso | Mecanismo | Descripción |
+| Resource | Mechanism | Description |
 |---|---|---|
-| `seat_matrix[zone][row][col]` | `zone_lock[i]` (Lock) | Matriz tridimensional de asientos — sección crítica principal |
-| Semáforo por zona | `threading.Semaphore(capacity)` | Controla disponibilidad; bloquea hilos cuando la zona está llena |
-| `reservations` (tabla) | `table_lock` (Lock) | Diccionario de transacciones activas con TTL |
-| `event_log` (bitácora) | `log_lock` (Lock) | Registro cronológico de todos los eventos del sistema |
-| Gestor de TTL | `threading.Thread(daemon=True)` | Hilo de fondo que revisa y libera reservas vencidas cada 5 segundos |
+| `seat_matrix[zone][row][col]` | `zone_lock[i]` (Lock) | Three-dimensional seat matrix - main critical section |
+| Semaphore per zone | `threading.Semaphore(capacity)` | Controls availability; blocks threads when the zone is full |
+| `reservations` (table) | `table_lock` (Lock) | Dictionary of active transactions with TTL |
+| `event_log` (log) | `log_lock` (Lock) | Chronological record of all system events |
+| TTL manager | `threading.Thread(daemon=True)` | Background thread that checks and releases expired reservations every 5 seconds |
 
-## 🚀 Cómo Ejecutar
+## 🚀 How to Run
 
-### Prerequisitos
+### Prerequisites
 
-- Python 3.8 o superior
-- Sin dependencias externas — solo biblioteca estándar
+- Python 3.8 or superior
+- No external dependencies - standard library only
 
-### Instalación
+### Installation
 
 ```bash
 git clone https://github.com/tu-usuario/concierto-so.git
 cd concierto-so
 ```
 
-### Iniciar el Servidor
+### Start the Server
 
 ```bash
 python server/servidor.py
 ```
 
-El servidor escucha en `0.0.0.0:9090` y crea un hilo por cada cliente que se conecta.
+The server listens on `0.0.0.0:9090` and creates one thread for each connected client.
 
-### Iniciar el Cliente Interactivo
+### Start the Interactive Client
 
 ```bash
 python client/cliente_interactivo.py
 ```
 
-Menú de consola con las opciones disponibles:
+Console menu with the following options:
 
 ```
-1. Consultar disponibilidad por zona
-2. Reservar asiento
-3. Reservar múltiples asientos
-4. Confirmar compra
-5. Cancelar reserva
-6. Estado global del sistema
-7. Ver bitácora
+1. Check availability by zone
+2. Reserve seat
+3. Reserve multiple seats
+4. Confirm purchase
+5. Cancel reservation
+6. Global system status
+7. View event log
 ```
 
-### Ejecutar Pruebas de Concurrencia
+### Run Concurrency Tests
 
 ```bash
 python client/prueba_concurrente.py
 ```
 
-Ejecuta dos escenarios automáticos:
-- **Escenario Conflicto:** 10 usuarios compitiendo por el mismo asiento simultáneamente.
-- **Escenario Carga:** 30 usuarios con asientos aleatorios en paralelo.
+Runs two automatic scenarios:
+- **Conflict Scenario:** 10 users competing for the same seat simultaneously.
+- **Load Scenario:** 30 users reserving random seats in parallel.
 
-Los resultados se guardan en `logs_prueba_concurrente.txt`.
+Results are saved in `logs_prueba_concurrente.txt`.
 
-## 🔄 Flujo de una Reserva Protegida
+## 🔄 Protected Reservation Flow
 
 ```
-Cliente envía solicitud
+Client sends request
         │
         ▼
-semaphore[zone].acquire()  ← bloquea si zona llena
+semaphore[zone].acquire()  ← blocks if zone is full
         │
         ▼
-zone_lock[i].acquire()     ← exclusión mutua sobre la matriz
+zone_lock[i].acquire()     ← mutual exclusion over the matrix
         │
         ▼
-Verificar estado del asiento
+Check seat status
         │
    ┌────┴────┐
    │         │
-DISPONIBLE  NO DISPONIBLE → liberar semáforo → error
+AVAILABLE   NOT AVAILABLE → release semaphore → error
    │
    ▼
-Marcar como RESERVADO
+Mark as RESERVED
         │
         ▼
-table_lock.acquire()       ← proteger tabla de reservas
+table_lock.acquire()       ← protect reservation table
         │
         ▼
-Insertar transacción (tx_id, timestamp, TTL)
+Insert transaction (tx_id, timestamp, TTL)
         │
         ▼
-Liberar locks en orden inverso
+Release locks in reverse order
         │
         ▼
-log_lock → registrar evento → Reserva exitosa ✓
+log_lock → record event → Reservation successful ✓
 ```
 
-## 🧵 Prevención de Interbloqueos
+## 🧵 Deadlock Prevention
 
-Se elimina la **condición de espera circular** (Coffman) estableciendo un orden jerárquico global obligatorio de adquisición de locks:
+The **circular wait condition** (Coffman) is removed by enforcing a mandatory global hierarchical lock acquisition order:
 
 ```
-Nivel 1: semaphores[zone_id]   → siempre en orden ascendente de índice
-Nivel 2: zone_lock[zone_id]    → siempre en orden ascendente de índice
-Nivel 3: table_lock
-Nivel 4: log_lock
+Level 1: semaphores[zone_id]   → always in ascending index order
+Level 2: zone_lock[zone_id]    → always in ascending index order
+Level 3: table_lock
+Level 4: log_lock
 ```
 
-Ningún hilo puede adquirir un lock de nivel inferior al que ya posee. Los locks siempre se liberan en orden inverso dentro de bloques `try/finally`.
+No thread may acquire a lower-level lock after already acquiring a higher-level one. Locks are always released in reverse order inside `try/finally` blocks.
 
-## 📊 Propiedades de Correctitud
+## 📊 Correctness Properties
 
-| Propiedad | Garantía |
+| Property | Guarantee |
 |---|---|
-| **Safety** | Ningún asiento puede confirmarse a dos clientes simultáneamente — verificación y marcado ocurren en la misma sección crítica |
-| **Liveness** | `try/finally` garantiza liberación de locks; orden jerárquico elimina deadlocks; daemon TTL evita bloqueos indefinidos |
+| **Safety** | No seat can be confirmed for two clients simultaneously - verification and marking occur in the same critical section |
+| **Liveness** | `try/finally` guarantees lock release; hierarchical ordering eliminates deadlocks; TTL daemon prevents indefinite blocking |
 
-## 👥 Integrantes
+## 📄 License
 
-| Nombre | Carné |
-|---|---|
-| Allan Moises Calderon Ceciliano | — |
-| Keylor Steven Pineda Alvarez | — |
-
-## 📄 Licencia
-
-Este proyecto es de uso académico bajo los lineamientos del curso EIF 212 Sistemas Operativos, Universidad Nacional de Costa Rica.
+This project is for academic use under the guidelines of the EIF 212 Operating Systems course, National University of Costa Rica.
